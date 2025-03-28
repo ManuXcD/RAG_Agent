@@ -5,8 +5,8 @@ BASE_API_URL = "http://127.0.0.1:7860"
 # FLOW_ID = "cc67f6a9-bcb6-4640-8ca4-bf9bdf24c139"
 # ENDPOINT = "insurance_agent" # The endpoint name of the flow
 
-FLOW_ID = "636df6f8-97ab-4fa0-a42d-e1c37d9e26dc"
-ENDPOINT = "insurance_agent_rag" 
+FLOW_ID = "139188c1-8b64-4a9a-b6be-c76f8e2dc1a5"
+ENDPOINT = "langflow_chatbot_assistant" 
 
 APPLICATION_TOKEN = st.secrets["APP_KEY"]
 
@@ -27,11 +27,12 @@ def run_flow(message: str) -> dict:
 st.sidebar.header("Welcome!") 
 st.sidebar.title("options")
 
-st.title("I am an Insurance Agent :blue :sunglasses:")
-st.subheader("I'm here to assist you with your mediclaim insurance query", divider="blue") 
+st.title("Medical Insurance Help Assistant.")
+st.subheader("I'm here to assist you with your mediclaim insurance query.", divider="blue")
 
 def main():
     clear_button = st.sidebar.button("Clear Conversation", key="clear")
+    st.sidebar.markdown("Target Audience : Insured")
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
