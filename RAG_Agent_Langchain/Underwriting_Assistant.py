@@ -10,22 +10,22 @@ def get_custom_prompt():
     return ChatPromptTemplate.from_messages([
         SystemMessagePromptTemplate.from_template(
             "You are an insurance agent of The Oriental Insurance Company, who needs to provide medical insurance details based on customer question. Follow these guidelines:\n"
- "- Answer customer query using only the information from the uploaded PDFs.\n"
-"- Use simple, clear language suitable for a customer.\n"
-"- Include a polite greeting and closing.\n"
-#"- Provide a brief overview of Mediclaim insurance.\n"
-# "- Highlight coverage, premium details, and key benefits.\n"
-"- If the answer isn't in the documents, say: 'I cannot find relevant information in the provided documents.'\n"
-"- Do not speculate, assume, or invent information.\n"
-"- Maintain a professional tone and organize responses clearly (e.g., bullet points, step-by-step explanations).\n"
-"- Encourage follow-up questions by asking if further clarification is needed.\n"
-#"- Provide examples to clarify concepts when helpful.\n"
+            "- Answer customer query using only the information from the uploaded PDFs.\n"
+            "- Use simple, clear language suitable for a customer.\n"
+            "- Include a polite greeting\n"
+            "- Provide a brief overview of Mediclaim insurance.\n"
+            # "- Highlight coverage, premium details, and key benefits.\n"
+            "- If the answer isn't in the documents, say: 'I cannot find relevant information in the provided documents.'\n"
+            # "- Do not speculate, assume, or invent information.\n"
+            "- Maintain a professional tone and organize responses clearly (e.g., bullet points, step-by-step explanations).\n"
+            "- Encourage follow-up questions by asking if further clarification is needed.\n"
+            #"- Provide examples to clarify concepts when helpful.\n"
 
         ),
         HumanMessagePromptTemplate.from_template(
             "Context:\n{context}\n\n"
             "Question: {question}\n\n"
-            # "Provide a precise and well-structured answer based on the context above. Ensure your response is easy to understand, includes medical coverage details, and is formatted in a way that a customer can undersrtand. If applicable, ask if the customer needs further clarification."
+            # "Provide a precise and well-structured answer based on the context above. Ensure your response is easy to understand, includes examples where necessary, and is formatted in a way that students can use it for exams. If applicable, ask if the student needs further clarification."
             "Provide a precise and well-structured answer based on the context above. Ensure your response is easy to understand, and is formatted in a way that a customer can undersrtand. If applicable, ask if the customer needs further clarification."
         )
     ])
@@ -33,9 +33,8 @@ def get_custom_prompt():
 # Initialize QA Chain
 def initialize_qa_chain():
     if not st.session_state.qa_chain and st.session_state.vector_store:
-        # llm = ChatOllama(model="llama3:latest", temperature=0.01)
-        llm = ChatOllama(model="deepseek-r1:1.5b", temperature=0.01)
-        
+        llm = ChatOllama(model="llama3.2:latest", temperature=0.3)
+        # llm = ChatOllama(model="llama3:latest", temperature=0.5)
         retriever = get_retriever()
         st.session_state.qa_chain = RetrievalQA.from_chain_type(
             llm,
@@ -54,16 +53,16 @@ def initialize_session_state():
     if "qa_chain" not in st.session_state:
         st.session_state.qa_chain = None
 
-
 # Sidebar section
 def display_sidebar():
     with st.sidebar:
+        st.header("Target Audience: Underwriter Claim Adjuster.")
         # Instructions
         st.markdown("### Instructions")
         st.info("""
         1. Upload PDF documents.
         2. Click 'Create Knowledge Base'.
-        3. Once documents are processed, start chatting with the bot!
+        3. Once documents are processed, start chatting with the Underwriting Assistant!
         """)
         
         # Streamlit file uploader widget
@@ -74,7 +73,6 @@ def display_sidebar():
         )
         
         # Action Button for user to kick off the knowledge base creation process
-        # Action Button for user to kick off the knowledge base creation process
         if st.button("Create Knowledge Base"):
             if not pdfs:
                 st.warning("Please upload PDF documents first!")
@@ -82,8 +80,7 @@ def display_sidebar():
 
             try:
                 with st.spinner("Creating knowledge base... This may take a moment."):
-                    vector_store, summarize = process_documents(pdfs)
-                    print(summarize)
+                    vector_store = process_documents(pdfs)
                     st.session_state.vector_store = vector_store
                     st.session_state.qa_chain = None  # Reset QA chain when new documents are processed
 
@@ -96,8 +93,8 @@ def display_sidebar():
 
 # Chat interface section
 def chat_interface():
-    st.title("Medical Insurance Agent - Powered by deepseek-r1:1.5b :blue :sunglasses:")
-    st.markdown("I'm here to assist you with your mediclaim insurance query.")
+    st.title("Welcome!")
+    st.subheader("Underwriting Assistant\n Your Underwriting AI Assistant.", divider="blue")
     
     # Display chat messages
     for message in st.session_state.messages:
@@ -105,7 +102,7 @@ def chat_interface():
             st.markdown(message["content"])
     
     # Handle user input
-    if prompt := st.chat_input("Ask about medicaliam insurance..."):
+    if prompt := st.chat_input("Ask about your documents"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         
         with st.chat_message("user"):
