@@ -10,7 +10,6 @@ import base64
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -117,14 +116,23 @@ def main():
     while True:
         print("Processing new unread emails...")
         unread_emails = get_unread_emails(EMAIL_USER, EMAIL_PASS)
-        for email in unread_emails:
-            print("Awaiting for response from AI Email Assistant...")
-            ai_response = search_knowledge_base(email['body'])
-            send_reply(EMAIL_USER, EMAIL_PASS, email['sender'], email['subject'], ai_response)
-       
-        print("All new emails have been processed and replied.")
+        if unread_emails:
+            count = 0
+            total_emails = len(unread_emails)
+            print(f"Total New Email(s) found: {total_emails}")
+            for email in unread_emails:
+                count += 1
+                print(f"{count} email of / {total_emails} is processing. \n Awaiting for response from AI Email Assistant... ")
+                ai_response = search_knowledge_base(email['body'])
+                send_reply(EMAIL_USER, EMAIL_PASS, email['sender'], email['subject'], ai_response)
+                print(f"{count} email of / {total_emails} has been processed and replied")
+            print("All new emails have been processed and replied.")
+        else:
+            print("No New Emails Found.")
+
         print("Waiting for next check...")
         time.sleep(CHECK_INTERVAL)  # Wait before checking again
+
 
 if __name__ == "__main__":
     main()
